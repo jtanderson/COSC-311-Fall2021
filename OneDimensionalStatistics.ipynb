@@ -1,0 +1,459 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d785238f-290b-44ce-a15b-44ca62d3e391",
+   "metadata": {},
+   "source": [
+    "# One-Dimensional Statistical Tools\n",
+    "\n",
+    "When we're presented with sets of raw data from some observations, we need to be able to systematically quantify its various properties. \n",
+    "This is the purpose of most one-dimensional descriptive statistics:\n",
+    "\n",
+    "- Quantify the \"average\" value present (i.e. the mean)\n",
+    "\n",
+    "$$ \\bar{x} := \\frac{1}{N} \\sum_{i=1}^{N} x_i $$\n",
+    "\n",
+    "- The \"center\" or \"middle value\" (i.e. the median)\n",
+    "- The values that appear more or less frequently (i.e. the mode)\n",
+    "- How broad/extreme are the observations (i.e. min/max, these can be at odds with the above)\n",
+    "- The \"spread\" of the data, how varied is it?\n",
+    "- Variance is:\n",
+    "\n",
+    "$$ var(X) := \\sigma^2_x := \\frac{1}{N-1} \\sum_{i=1}^{N} (x_i - \\bar{x})^2 $$\n",
+    "\n",
+    "- Standard deviation is then:\n",
+    "\n",
+    "$$ std(X) := \\sqrt{\\sigma^2_x} $$\n",
+    "\n",
+    "- Covariance is similar to the variance, but instead of average square distance to the mean it's the average product of differences with their means:\\\n",
+    "$$ cov(X,Y) = \\frac{1}{N-1} \\sum_{i=1}^{N} (x_i - \\bar{x}) (y_i - \\bar{y}) $$\n",
+    "Note then covariance generalizes variance in the sense that \n",
+    "$$ var(X) = cov(X,X) $$\n",
+    "- Correlation between two sample populations/events/processes is measure of their relationship. Typically given by a 'correlation coefficient' that is in the range (-1,1). A positive correlation means that when the value of the first process/observation is higher, so will the other one be; i.e. they increase together. Negative implies an inverse relationship; when one grows, the other shrinks. To define we also to define the \"covariance\" between the samples.\n",
+    "$$ \\sigma_{x,y} := \\frac{cov(X,Y)}{\\sigma_x \\sigma_y} $$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2eca10b7-2798-4eaf-9129-035cbf9f558a",
+   "metadata": {},
+   "source": [
+    "## First, some discussion of using Python modules\n",
+    "\n",
+    "We want to, in Python, be able to import not only nice build-in libraries, but code we wrote ourselves!\n",
+    "Similar to, in `c++`, being able to `#include` other `.cpp` files.\n",
+    "\n",
+    "We with Python `modules` -- which for us will just mean single files with definitions of function/utility variables inside.\n",
+    "\n",
+    "Idea:\n",
+    "- Write your python tools, functions, etc. in some file that ends in `.py`, ex. `stats.py`\n",
+    "- If the file is local to your current other Python file or Notebook, you can simple `import` that file by name (without the `.py`), e.g. `import stats`\n",
+    "- This then loads all the constituent definitions into a scope named by the import, e.g. a function called `mean` defined in `stats.py` will be acessible via `stats.mean`\n",
+    "- NB: if using a notebooky or kernel-based environment, either have to unload and reload the module to refresh its contents or restart your kernel (unloading stuff left as exercise)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "635b201d-546e-4241-94e2-05e38b1ddd0e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# every variable, function, etc. in the top-level scope is now here(!) \n",
+    "# and located under the \"stats\" scope.\n",
+    "# When you import, it essentially does `python stats.py` and stores the definitions/variables\n",
+    "import numpy as np\n",
+    "import stats\n",
+    "\n",
+    "# fancier imports, if you dislike the stats.XXX style we can import and load into the global scope\n",
+    "#from stats import mean # only imports the mean function but puts in the global scopej\n",
+    "#from stats import * # to get everything in the global scope"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "6b5aa0d4-1fc6-417e-af67-8168dcd8f598",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "6.0"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# with `import stats`\n",
+    "stats.mean(np.array([3,5,7,9]))\n",
+    "\n",
+    "# with `from stats import mean`\n",
+    "#mean(np.array([3,5,7,9]))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "ffca72bf-8d91-4708-8d59-f0313f1ca277",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# len = 'hello'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "f05b7625-562d-4b2c-bc4e-dcac78cd64b6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# def len(x):\n",
+    "#     print('ha')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "7d8a0be5-f3e6-4ba0-8cd3-691fec0153c4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len([1,2,4,5])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "d0cfa163-8705-48af-8408-612ca33af197",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "3"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "stats.median([2,5,4,3,1])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "47edd235-5121-42a3-a8ca-067554c9d85c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "3.5"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "stats.median([2,5,4,3])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "25201b4a-4323-425c-b022-11c1cd6544bd",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "44"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sum([1,2,32,4,5])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "0ed353eb-e267-4822-801e-477b2f97a4ab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from collections import Counter"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "786c953b-0b8d-4010-b167-39341caa3d92",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "xs = [1,2,3,4,3,2,3,1,2,1,1,2,3,2]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "88c7058b-6c18-4c43-af33-266086b26a48",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "counts = Counter(xs)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "5cb5926f-183d-4c50-95ba-4c6a6ae18ce1",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Counter({1: 4, 2: 5, 3: 4, 4: 1})"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "counts"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "4868b583-9edc-471d-97b4-421626fe7426",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "dict_values([4, 5, 4, 1])"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "counts.values()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "819440f4-d73c-4e0d-8a22-2fdf04617f85",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "max(counts.values())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "c2916819-e261-4beb-906c-f8602712d28a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "dict_items([(1, 4), (2, 5), (3, 4), (4, 1)])"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "counts.items()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "8dae765c-829a-49be-8e85-28992d5fcf38",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[2]"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "[x[0] for x in counts.items() if x[1] == max(counts.values())]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "0331c3c2-7c57-455d-a25f-10f7dac3698d",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[2]"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = []\n",
+    "for val, count in counts.items():\n",
+    "    if count == max(counts.values()):\n",
+    "#         x += [val]\n",
+    "        x.append(val)\n",
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "5347a456-4872-45f7-84a7-f4f491a281eb",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4]"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sorted([1,2,3,4,3,2,3,1,2,1,1,2,3,2])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "ae051ea4-d407-4538-ae0f-6d6f56f1049e",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "14"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len([1,2,3,4,3,2,3,1,2,1,1,2,3,2])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "bd532670-6717-4ebd-83d1-8d0f0c5598cc",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Help on function mean in module stats:\n",
+      "\n",
+      "mean(x)\n",
+      "    calculate and return the mean of a numpy array\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "help(stats.mean)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b228b631-df7b-4588-b962-5e9e8d1ba1af",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.12"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
